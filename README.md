@@ -41,7 +41,7 @@ download the repo as ZIP file and extract to your PWD (you may remove org-sample
 
 Note: you refer the org-samples for directory structure reference.
 
-# Form networm with Org1 & Org2
+# Form network with Org1 & Org2
 - update the hlf_vars file to your Org requirements
 - Run the hlf_setup.sh script to create the CAs and the network structure for Org1
 - Run the hlf_setup.sh script to create the CAs and the network structure for Org2
