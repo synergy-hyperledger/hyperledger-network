@@ -34,6 +34,7 @@ usermod -aG docker bcuser
 curl -sSL https://bit.ly/2ysbOFE | bash -s -- 2.2.1 1.4.9
 
 # Pull couchdb docker images
+docker pull couchdb:3.1.1
 
 # Network setup (e.g. mytest-network)
 download the repo as ZIP file and extract to your PWD (you may remove org-samples)
