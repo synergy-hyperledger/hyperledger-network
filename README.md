@@ -45,7 +45,7 @@ Note: you refer the org-samples for directory structure reference.
 - update the hlf_vars file to your Org requirements
 - Run the hlf_setup.sh script to create the CAs and the network structure for Org1
 - Run the hlf_setup.sh script to create the CAs and the network structure for Org2
-- Copy the Org2 msp to Org1 server and Org1 msp to Org2 server (Org msp exchange)
+- Copy the Org2 MSP to Org1 server 
 - Run the start_org1.sh to start the Org1
 - Run the start_org2.sh to start the Org2
 
@@ -60,5 +60,5 @@ Note: you refer the org-samples for directory structure reference.
 - Then run start_org3.sh to start the Org3 in Org3 server.
 
 
-
+Note: Orderer MSP must be shared to all Organizations.
 
