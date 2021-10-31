@@ -32,3 +32,14 @@ usermod -aG docker bcuser
 # Install HLF (login as non-root user ‘bcuker’)
 
 curl -sSL https://bit.ly/2ysbOFE | bash -s -- 2.2.1 1.4.9
+
+# Pull couchdb docker images
+
+# Network setup (e.g. mytest-network)
+download the repo as ZIP file and extract to your PWD (you may remove org-samples)
+
+- update the hlf_vars file to your Org requirements
+- Run the hlf_setup.sh script to create the CAs and the network structure
+- Run the start_org1.sh to start the Org1
+
+
