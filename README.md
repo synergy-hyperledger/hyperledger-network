@@ -60,5 +60,5 @@ Note: you refer the org-samples for directory structure reference.
 - Then run start_org3.sh to start the Org3 in Org3 server.
 
 
-Note: Orderer MSP must be shared to all Organizations (This configuration was tested with One Orderer running at Org1)
+Note: Orderer MSP must be shared to all Organizations (Tested with One Orderer running at Org1)
 
