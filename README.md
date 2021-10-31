@@ -29,7 +29,7 @@ ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
 useradd bcuser
 usermod -aG docker bcuser
 
-# Install HLF (login as non-root user ‘bcuker’)
+# Install HLF (login as non-root user ‘bcuser’)
 
 curl -sSL https://bit.ly/2ysbOFE | bash -s -- 2.2.1 1.4.9
 
