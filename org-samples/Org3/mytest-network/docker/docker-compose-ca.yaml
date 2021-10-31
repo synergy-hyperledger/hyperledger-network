@@ -1,0 +1,43 @@
+
+version: '2'
+
+networks:
+  mytest:
+
+services:
+
+  Org3-ca-tls:
+    image: hyperledger/fabric-ca:1.4.9
+    environment:
+      - FABRIC_CA_SERVER_HOME=/etc/hyperledger/fabric-ca-server
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_PORT=7054
+      - FABRIC_CA_SERVER_DEBUG=true
+    ports:
+      - "7054:7054"
+    command: sh -c 'fabric-ca-server start'
+    volumes:
+      - /app/hlf/mytest-network/fabric-ca/ca-tls:/etc/hyperledger/fabric-ca-server
+    container_name: Org3-ca-tls
+    extra_hosts:
+      - "centos83:192.168.56.23"
+    networks:
+      - mytest
+
+  Org3-ca-org:
+    image: hyperledger/fabric-ca:1.4.9
+    environment:
+      - FABRIC_CA_SERVER_HOME=/etc/hyperledger/fabric-ca-server
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_PORT=7054
+      - FABRIC_CA_SERVER_DEBUG=true
+    ports:
+      - "7056:7054"
+    command: sh -c 'fabric-ca-server start'
+    volumes:
+      - /app/hlf/mytest-network/fabric-ca/ca-org:/etc/hyperledger/fabric-ca-server
+    container_name: Org3-ca-org
+    extra_hosts:
+      - "centos83:192.168.56.23"
+    networks:
+      - mytest

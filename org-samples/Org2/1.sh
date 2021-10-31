@@ -1,0 +1,16 @@
+
+
+. ./hlf_vars
+
+get_val() {
+   var1=$1
+   echo ${!var1}
+}
+
+HLF_PEER_NUM=1
+HLF_ORG_PEER_ID=$(get_val HLF_ORG_PEER${HLF_PEER_NUM}_ID)
+HLF_ORG_PEER_SECRET=$HLF_ORG_PEER${HLF_PEER_NUM}_SECRET
+HLF_ORG_PEER_PORT=$HLF_ORG_PEER${HLF_PEER_NUM}_PORT
+
+echo $HLF_ORG_PEER1_ID
+echo $HLF_ORG_PEER_ID

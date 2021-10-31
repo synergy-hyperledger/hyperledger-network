@@ -1,0 +1,52 @@
+
+version: '2'
+
+networks:
+  mytest:
+
+volumes:
+  orderer1-org1:
+
+services:
+
+  orderer1-org1:
+    container_name: orderer1-org1
+    image: hyperledger/fabric-orderer:2.2.1
+    environment:
+      - FABRIC_LOGGING_SPEC=DEBUG
+      - ORDERER_HOST=orderer1-org1
+      - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
+      - ORDERER_GENERAL_LISTENPORT=7050
+      - ORDERER_GENERAL_GENESISMETHOD=file
+      - ORDERER_GENERAL_GENESISFILE=/var/hyperledger/orderer/orderer.genesis.block
+      - ORDERER_GENERAL_LOCALMSPID=Orderer1MSP
+      - ORDERER_GENERAL_LOCALMSPDIR=/var/hyperledger/orderer/msp
+      - ORDERER_GENERAL_TLS_ENABLED=true
+      - ORDERER_GENERAL_TLS_PRIVATEKEY=/var/hyperledger/orderer/tls/keystore/key.pem
+      - ORDERER_GENERAL_TLS_CERTIFICATE=/var/hyperledger/orderer/tls/signcerts/cert.pem
+      - ORDERER_GENERAL_TLS_ROOTCAS=[/var/hyperledger/orderer/tls/tlscacerts/tls-cacert.pem]
+      - ORDERER_GENERAL_LOGLEVEL=debug
+      - ORDERER_KAFKA_TOPIC_REPLICATIONFACTOR=1
+      - ORDERER_KAFKA_VERBOSE=true
+      - ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE=/var/hyperledger/orderer/tls/signcerts/cert.pem
+      - ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY=/var/hyperledger/orderer/tls/keystore/key.pem
+      - ORDERER_GENERAL_CLUSTER_ROOTCAS=[/var/hyperledger/orderer/tls/tlscacerts/tls-cacert.pem]
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric
+    command: orderer
+    volumes:
+        - /app/hlf/mytest-network/system-genesis-block/genesis.block:/var/hyperledger/orderer/orderer.genesis.block
+        - /app/hlf/mytest-network/organizations/ordererOrganizations/Org1/orderers/orderer1-org1/msp:/var/hyperledger/orderer/msp
+        - /app/hlf/mytest-network/organizations/ordererOrganizations/Org1/orderers/orderer1-org1/tls:/var/hyperledger/orderer/tls
+        - orderer1-org1:/var/hyperledger/production/orderer
+    ports:
+      - 7050:7050
+    extra_hosts:
+      - "centos81:192.168.56.21"
+      - "centos82:192.168.56.22"
+      - "centos83:192.168.56.23"
+      - "orderer1-org1:192.168.56.21"
+      - "peer1-org1:192.168.56.21"
+      - "peer1-org2:192.168.56.22"
+      - "peer1-org3:192.168.56.23"
+    networks:
+      - mytest

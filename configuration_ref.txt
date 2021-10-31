@@ -1,0 +1,198 @@
+
+export COMPOSE_PROJECT_NAME=net
+
+/app/hlf/mytest-network/organizations/fabric-ca/client
+export FABRIC_CA_CLIENT_HOME=/app/hlf/mytest-network/organizations/fabric-ca/client
+## ca-tls
+##Start CA Server
+fabric-ca-client enroll -d --mspdir ca-tls/msp -u https://catlsadm:catlsadmpw@centos81:7054 --tls.certfiles ../ca-tls/ca-cert.pem
+
+fabric-ca-client register -d --mspdir ca-tls/msp --id.name caordradm --id.secret caordradmpw -u https://centos81:7054 --tls.certfiles ../ca-tls/ca-cert.pem
+fabric-ca-client register -d --mspdir ca-tls/msp --id.name caorgadm --id.secret caorgadmpw -u https://centos81:7054 --tls.certfiles ../ca-tls/ca-cert.pem
+fabric-ca-client enroll -d --mspdir ca-tls/caordradm/msp -u https://caordradm:caordradmpw@centos81:7054 --enrollment.profile tls --csr.hosts centos81 --tls.certfiles ../ca-tls/ca-cert.pem
+fabric-ca-client enroll -d --mspdir ca-tls/caorgadm/msp -u https://caorgadm:caorgadmpw@centos81:7054 --enrollment.profile tls --csr.hosts centos81 --tls.certfiles ../ca-tls/ca-cert.pem
+
+fabric-ca-client register -d --mspdir ca-tls/msp --id.name orderer1-org1 --id.secret ordr1org1pw -u https://centos81:7054 --tls.certfiles ../ca-tls/ca-cert.pem
+fabric-ca-client register -d --mspdir ca-tls/msp --id.name peer1-org1 --id.secret peer1org1pw -u https://centos81:7054 --tls.certfiles ../ca-tls/ca-cert.pem
+
+
+##ca-orderer
+mkdir tls
+cp ../client/ca-tls/caordradm/msp/keystore/d31a567b95c87ad69d4bd575a7af67831ff543545905a3b963a26ad42844ac34_sk tls/key.pem
+cp ../client/ca-tls/caordradm/msp/signcerts/cert.pem tls/cert.pem
+##Start CA server
+fabric-ca-server start
+fabric-ca-client enroll -d --mspdir ca-orderer/msp -u https://caordradm:caordradmpw@centos81:7055 --tls.certfiles ../ca-tls/ca-cert.pem
+fabric-ca-client register -d --mspdir ca-orderer/msp --id.name orderer1-org1 --id.secret ordr1org1pw --id.type orderer -u https://centos81:7055 --tls.certfiles ../ca-tls/ca-cert.pem
+fabric-ca-client register -d --mspdir ca-orderer/msp --id.name ordr-admin-org1 --id.secret ordradminorg1pw --id.type admin --id.attrs "hf.Registrar.Roles=client,hf.Registrar.Attributes=*,hf.Revoker=true,hf.GenCRL=true,admin=true:ecert,abac.init=true:ecert" -u https://centos81:7055 --tls.certfiles ../ca-tls/ca-cert.pem
+
+##ca-org
+mkdir tls
+cp ../client/ca-tls/caorgadm/msp/keystore/d31a567b95c87ad69d4bd575a7af67831ff543545905a3b963a26ad42844ac34_sk tls/key.pem
+cp ../client/ca-tls/caorgadm/msp/signcerts/cert.pem tls/cert.pem
+##Start CA server
+fabric-ca-server start
+fabric-ca-client enroll -d --mspdir ca-org/msp -u https://caorgadm:caorgadmpw@centos81:7056 --tls.certfiles ../ca-tls/ca-cert.pem
+fabric-ca-client register -d --mspdir ca-org/msp --id.name peer1-org1 --id.secret peer1org1pw --id.type peer -u https://centos81:7056 --tls.certfiles ../ca-tls/ca-cert.pem
+fabric-ca-client register -d --mspdir ca-org/msp --id.name admin-org1 --id.secret adminorg1pw --id.type admin -u https://centos81:7056 --tls.certfiles ../ca-tls/ca-cert.pem
+fabric-ca-client register -d --mspdir ca-org/msp --id.name user1-org1 --id.secret user1org1pw --id.type client -u https://centos81:7056 --tls.certfiles ../ca-tls/ca-cert.pem
+
+
+## Setup Orderer
+/app/hlf/mytest-network/organizations/ordererOrganizations/org1
+export FABRIC_CA_CLIENT_HOME=/app/hlf/mytest-network/organizations/ordererOrganizations/org1
+# orderer1 msp
+fabric-ca-client enroll -d -M orderers/orderer1/msp -u https://orderer1-org1:ordr1org1pw@centos81:7055 --csr.hosts "orderer1-org1,centos81" --tls.certfiles /app/hlf/mytest-network/organizations/fabric-ca/ca-tls/ca-cert.pem
+fabric-ca-client enroll -d -M orderers/orderer1/tls -u https://orderer1-org1:ordr1org1pw@centos81:7054 --enrollment.profile tls --csr.hosts "orderer1-org1,centos81" --tls.certfiles /app/hlf/mytest-network/organizations/fabric-ca/ca-tls/ca-cert.pem
+
+mv orderers/orderer1/tls/keystore/f9cfdb76d315a8696a8e9261fb25d8d6bc14c4188acf3f882045d3072a279794_sk orderers/orderer1/tls/keystore/key.pem
+cp -r orderers/orderer1/tls/tlscacerts msp/
+cp -r orderers/orderer1/tls/tlscacerts orderers/orderer1/msp/
+
+# admin msp
+fabric-ca-client enroll -d -M users/Admin@org1/msp -u https://ordr-admin-org1:ordradminorg1pw@centos81:7055 --tls.certfiles /app/hlf/mytest-network/organizations/fabric-ca/ca-tls/ca-cert.pem
+cp orderers/orderer1/msp/config.yaml users/Admin@org1/msp/
+
+
+## Setup Org1
+/app/hlf/mytest-network/organizations/peerOrganizations/org1
+export FABRIC_CA_CLIENT_HOME=/app/hlf/mytest-network/organizations/peerOrganizations/org1
+fabric-ca-client enroll -d -M peers/peer1/msp -u https://peer1-org1:peer1org1pw@centos81:7056 --csr.hosts "peer1-org1,centos81" --tls.certfiles /app/hlf/mytest-network/organizations/fabric-ca/ca-tls/ca-cert.pem
+fabric-ca-client enroll -d -M peers/peer1/tls -u https://peer1-org1:peer1org1pw@centos81:7054 --enrollment.profile tls --csr.hosts "peer1-org1,centos81" --tls.certfiles /app/hlf/mytest-network/organizations/fabric-ca/ca-tls/ca-cert.pem
+mv peers/peer1/tls/keystore/45fe78cf6114bbc61e5af6c2981475b336bb30bae6cf5c96f906f36adf90183a_sk peers/peer1/tls/keystore/key.pem
+cp config.yaml peers/peer1/msp/
+mkdir msp
+cp config.yaml msp/
+cp -r peers/peer1/tls/tlscacerts msp/
+cp -r peers/peer1/msp/cacerts msp/
+cp -r peers/peer1/tls/tlscacerts tlsca
+cp -r peers/peer1/msp/cacerts ca
+
+fabric-ca-client enroll -d -M users/User1@org1/msp -u https://user1-org1:user1org1pw@centos81:7056 --tls.certfiles /app/hlf/mytest-network/organizations/fabric-ca/ca-tls/ca-cert.pem
+fabric-ca-client enroll -d -M users/Admin@org1/msp -u https://admin-org1:adminorg1pw@centos81:7056 --tls.certfiles /app/hlf/mytest-network/organizations/fabric-ca/ca-tls/ca-cert.pem
+cp peers/peer1/msp/config.yaml users/User1@org1/msp/
+cp peers/peer1/msp/config.yaml users/Admin@org1/msp/
+
+
+
+## Org1
+------------------
+configtxgen -profile TwoOrgsOrdererGenesis -channelID system-channel -outputBlock ./system-genesis-block/genesis.block -configPath ./configtx
+configtxgen -profile TwoOrgsChannel -outputCreateChannelTx ./channel-artifacts/mytestchannel.tx -channelID mytestchannel -configPath ./configtx
+
+export FABRIC_CFG_PATH=../fabric-samples/config/
+
+export CORE_PEER_LOCALMSPID=Org1MSP
+export CORE_PEER_ADDRESS=centos81:7051
+export CORE_PEER_MSPCONFIGPATH=/app/hlf/mytest-network/organizations/peerOrganizations/org1/users/Admin@org1/msp
+export CORE_PEER_TLS_ENABLED=true
+export CORE_PEER_TLS_ROOTCERT_FILE=/app/hlf/mytest-network/organizations/peerOrganizations/org1/peers/peer1/tls/tlscacerts/tls-centos81-7054.pem
+export ORDERER_CA=/app/hlf/mytest-network/organizations/ordererOrganizations/org1/orderers/orderer1/msp/cacerts/centos81-7055.pem
+export ORDERER_ADDRESS=centos81:7050
+
+
+peer channel create -c mytestchannel -f ./channel-artifacts/mytestchannel.tx -o centos81:7050 --ordererTLSHostnameOverride orderer1-org1 --outputBlock ./channel-artifacts/mytestchannel.block --tls --cafile /app/hlf/mytest-network/organizations/ordererOrganizations/org1/orderers/orderer1/tls/tlscacerts/tls-centos81-7054.pem
+
+peer channel join -b ./channel-artifacts/mytestchannel.block
+## set anchor peer
+peer channel fetch config ./channel-artifacts/config_block.pb -o centos81:7050 --ordererTLSHostnameOverride orderer1-org1 -c mytestchannel --tls --cafile /app/hlf/mytest-network/organizations/ordererOrganizations/org1/orderers/orderer1/msp/tlscacerts/tls-centos81-7054.pem
+configtxlator proto_decode --input ./channel-artifacts/config_block.pb --type common.Block | jq .data.data[0].payload.data.config > Org1MSPconfig.json
+jq '.channel_group.groups.Application.groups.'Org1MSP'.values += {"AnchorPeers":{"mod_policy": "Admins","value":{"anchor_peers": [{"host": "'peer1-org1'","port": '7051'}]},"version": "0"}}' Org1MSPconfig.json > Org1MSPmodified_config.json
+configtxlator proto_encode --input "Org1MSPconfig.json" --type common.Config >./channel-artifacts/original_config.pb
+configtxlator proto_encode --input "Org1MSPmodified_config.json" --type common.Config >./channel-artifacts/modified_config.pb
+configtxlator compute_update --channel_id "mytestchannel" --original ./channel-artifacts/original_config.pb --updated ./channel-artifacts/modified_config.pb >./channel-artifacts/config_update.pb
+configtxlator proto_decode --input ./channel-artifacts/config_update.pb --type common.ConfigUpdate >./channel-artifacts/config_update.json
+echo '{"payload":{"header":{"channel_header":{"channel_id":"'mytestchannel'", "type":2}},"data":{"config_update":'$(cat ./channel-artifacts/config_update.json)'}}}' | jq . >./channel-artifacts/config_update_in_envelope.json
+configtxlator proto_encode --input ./channel-artifacts/config_update_in_envelope.json --type common.Envelope >./channel-artifacts/Org1MSPanchors.tx
+
+peer channel update -o centos81:7050 --ordererTLSHostnameOverride orderer1-org1 -c mytestchannel -f ./channel-artifacts/Org1MSPanchors.tx --tls --cafile /app/hlf/mytest-network/organizations/ordererOrganizations/org1/orderers/orderer1/msp/tlscacerts/tls-centos81-7054.pem
+
+
+### Org2
+------------
+export FABRIC_CFG_PATH=../fabric-samples/config/
+export CORE_PEER_LOCALMSPID=Org2MSP
+export CORE_PEER_ADDRESS=centos82:7051
+export CORE_PEER_MSPCONFIGPATH=/app/hlf/mytest-network/organizations/peerOrganizations/org2/users/Admin@org2/msp
+export CORE_PEER_TLS_ENABLED=true
+export CORE_PEER_TLS_ROOTCERT_FILE=/app/hlf/mytest-network/organizations/peerOrganizations/org2/peers/peer1/tls/tlscacerts/tls-centos82-7054.pem
+
+peer channel join -b ./channel-artifacts/mytestchannel.block
+## set anchor peer
+peer channel fetch config ./channel-artifacts/config_block.pb -o centos81:7050 --ordererTLSHostnameOverride orderer1-org1 -c mytestchannel --tls --cafile /app/hlf/mytest-network/organizations/ordererOrganizations/org1/orderers/orderer1/msp/tlscacerts/tls-centos81-7054.pem
+configtxlator proto_decode --input ./channel-artifacts/config_block.pb --type common.Block | jq .data.data[0].payload.data.config > Org2MSPconfig.json
+jq '.channel_group.groups.Application.groups.'Org2MSP'.values += {"AnchorPeers":{"mod_policy": "Admins","value":{"anchor_peers": [{"host": "'peer1-org2'","port": '7051'}]},"version": "0"}}' Org2MSPconfig.json > Org2MSPmodified_config.json
+configtxlator proto_encode --input "Org2MSPconfig.json" --type common.Config >./channel-artifacts/original_config.pb
+configtxlator proto_encode --input "Org2MSPmodified_config.json" --type common.Config >./channel-artifacts/modified_config.pb
+configtxlator compute_update --channel_id "mytestchannel" --original ./channel-artifacts/original_config.pb --updated ./channel-artifacts/modified_config.pb >./channel-artifacts/config_update.pb
+configtxlator proto_decode --input ./channel-artifacts/config_update.pb --type common.ConfigUpdate >./channel-artifacts/config_update.json
+echo '{"payload":{"header":{"channel_header":{"channel_id":"'mytestchannel'", "type":2}},"data":{"config_update":'$(cat ./channel-artifacts/config_update.json)'}}}' | jq . >./channel-artifacts/config_update_in_envelope.json
+configtxlator proto_encode --input ./channel-artifacts/config_update_in_envelope.json --type common.Envelope >./channel-artifacts/Org2MSPanchors.tx
+
+peer channel update -o centos81:7050 --ordererTLSHostnameOverride orderer1-org1 -c mytestchannel -f ./channel-artifacts/Org2MSPanchors.tx --tls --cafile /app/hlf/mytest-network/organizations/ordererOrganizations/org1/orderers/orderer1/msp/tlscacerts/tls-centos81-7054.pem
+
+ 
+### Org3
+--------------------
+export FABRIC_CFG_PATH=../fabric-samples/config/
+
+configtxgen -configPath ./configtx -printOrg Org3MSP > organizations/peerOrganizations/org3/org3.json
+
+## submit to Org1
+export FABRIC_CFG_PATH=../fabric-samples/config/
+export CORE_PEER_LOCALMSPID=Org1MSP
+export CORE_PEER_ADDRESS=centos81:7051
+export CORE_PEER_MSPCONFIGPATH=/app/hlf/mytest-network/organizations/peerOrganizations/org1/users/Admin@org1/msp
+export CORE_PEER_TLS_ENABLED=true
+export CORE_PEER_TLS_ROOTCERT_FILE=/app/hlf/mytest-network/organizations/peerOrganizations/org1/peers/peer1/tls/tlscacerts/tls-centos81-7054.pem
+export ORDERER_CA=/app/hlf/mytest-network/organizations/ordererOrganizations/org1/orderers/orderer1/msp/cacerts/centos81-7055.pem
+export ORDERER_ADDRESS=centos81:7050
+
+peer channel fetch config ./channel-artifacts/config_block.pb -o centos81:7050 --ordererTLSHostnameOverride orderer1-org1 -c mytestchannel --tls --cafile /app/hlf/mytest-network/organizations/ordererOrganizations/org1/orderers/orderer1/msp/tlscacerts/tls-centos81-7054.pem
+configtxlator proto_decode --input ./channel-artifacts/config_block.pb --type common.Block | jq .data.data[0].payload.data.config > Org3MSPconfig.json
+jq -s '.[0] * {"channel_group":{"groups":{"Application":{"groups": {"Org3MSP":.[1]}}}}}' Org3MSPconfig.json organizations/peerOrganizations/org3/org3.json > Org3MSPmodified_config.json
+configtxlator proto_encode --input Org3MSPconfig.json --type common.Config --output ./channel-artifacts/Org3MSPconfig.pb
+configtxlator proto_encode --input Org3MSPmodified_config.json --type common.Config --output ./channel-artifacts/Org3MSPmodified_config.pb
+configtxlator compute_update --channel_id "mytestchannel" --original ./channel-artifacts/Org3MSPconfig.pb --updated ./channel-artifacts/Org3MSPmodified_config.pb --output ./channel-artifacts/Org3MSPconfig_update.pb
+configtxlator proto_decode --input ./channel-artifacts/Org3MSPconfig_update.pb --type common.ConfigUpdate --output ./channel-artifacts/Org3MSPconfig_update.json
+echo '{"payload":{"header":{"channel_header":{"channel_id":"'mytestchannel'", "type":2}},"data":{"config_update":'$(cat ./channel-artifacts/Org3MSPconfig_update.json)'}}}' | jq . > ./channel-artifacts/org3_update_in_envelope.json
+configtxlator proto_encode --input ./channel-artifacts/org3_update_in_envelope.json --type common.Envelope --output ./channel-artifacts/org3_update_in_envelope.pb
+
+peer channel signconfigtx -f channel-artifacts/org3_update_in_envelope.pb
+
+### Approve Org2
+export FABRIC_CFG_PATH=../fabric-samples/config/
+export CORE_PEER_LOCALMSPID=Org2MSP
+export CORE_PEER_ADDRESS=centos82:7051
+export CORE_PEER_MSPCONFIGPATH=/app/hlf/mytest-network/organizations/peerOrganizations/org2/users/Admin@org2/msp
+export CORE_PEER_TLS_ENABLED=true
+export CORE_PEER_TLS_ROOTCERT_FILE=/app/hlf/mytest-network/organizations/peerOrganizations/org2/peers/peer1/tls/tlscacerts/tls-centos82-7054.pem
+
+peer channel update -f channel-artifacts/org3_update_in_envelope.pb -c mytestchannel -o centos81:7050 --ordererTLSHostnameOverride orderer1-org1 --tls --cafile /app/hlf/mytest-network/organizations/ordererOrganizations/org1/orderers/orderer1/msp/tlscacerts/tls-centos81-7054.pem
+
+
+### Org3 Join channel
+export FABRIC_CFG_PATH=../fabric-samples/config/
+export CORE_PEER_LOCALMSPID=Org3MSP
+export CORE_PEER_ADDRESS=centos83:7051
+export CORE_PEER_MSPCONFIGPATH=/app/hlf/mytest-network/organizations/peerOrganizations/org3/users/Admin@org3/msp
+export CORE_PEER_TLS_ENABLED=true
+export CORE_PEER_TLS_ROOTCERT_FILE=/app/hlf/mytest-network/organizations/peerOrganizations/org3/peers/peer1/tls/tlscacerts/tls-centos83-7054.pem
+
+peer channel fetch 0 ./channel-artifacts/mytestchannel.block -o centos81:7050 --ordererTLSHostnameOverride orderer1-org1 -c mytestchannel --tls --cafile /app/hlf/mytest-network/organizations/ordererOrganizations/org1/orderers/orderer1/msp/tlscacerts/tls-centos81-7054.pem
+
+peer channel join -b ./channel-artifacts/mytestchannel.block
+
+## set anchor peer
+peer channel fetch config ./channel-artifacts/config_block.pb -o centos81:7050 --ordererTLSHostnameOverride orderer1-org1 -c mytestchannel --tls --cafile /app/hlf/mytest-network/organizations/ordererOrganizations/org1/orderers/orderer1/msp/tlscacerts/tls-centos81-7054.pem
+configtxlator proto_decode --input ./channel-artifacts/config_block.pb --type common.Block | jq .data.data[0].payload.data.config > Org3MSPconfig.json
+jq '.channel_group.groups.Application.groups.'Org3MSP'.values += {"AnchorPeers":{"mod_policy": "Admins","value":{"anchor_peers": [{"host": "'peer1-org3'","port": '7051'}]},"version": "0"}}' Org3MSPconfig.json > Org3MSPmodified_config.json
+configtxlator proto_encode --input "Org3MSPconfig.json" --type common.Config >./channel-artifacts/original_config.pb
+configtxlator proto_encode --input "Org3MSPmodified_config.json" --type common.Config >./channel-artifacts/modified_config.pb
+configtxlator compute_update --channel_id "mytestchannel" --original ./channel-artifacts/original_config.pb --updated ./channel-artifacts/modified_config.pb >./channel-artifacts/config_update.pb
+configtxlator proto_decode --input ./channel-artifacts/config_update.pb --type common.ConfigUpdate >./channel-artifacts/config_update.json
+echo '{"payload":{"header":{"channel_header":{"channel_id":"'mytestchannel'", "type":2}},"data":{"config_update":'$(cat ./channel-artifacts/config_update.json)'}}}' | jq . >./channel-artifacts/config_update_in_envelope.json
+configtxlator proto_encode --input ./channel-artifacts/config_update_in_envelope.json --type common.Envelope >./channel-artifacts/Org3MSPanchors.tx
+
+peer channel update -o centos81:7050 --ordererTLSHostnameOverride orderer1-org1 -c mytestchannel -f ./channel-artifacts/Org3MSPanchors.tx --tls --cafile /app/hlf/mytest-network/organizations/ordererOrganizations/org1/orderers/orderer1/msp/tlscacerts/tls-centos81-7054.pem
+
