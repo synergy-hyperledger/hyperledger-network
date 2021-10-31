@@ -39,8 +39,26 @@ docker pull couchdb:3.1.1
 # Network setup (e.g. mytest-network)
 download the repo as ZIP file and extract to your PWD (you may remove org-samples)
 
+Note: you refer the org-samples for directory structure reference.
+
+# Form networm with Org1 & Org2
 - update the hlf_vars file to your Org requirements
-- Run the hlf_setup.sh script to create the CAs and the network structure
+- Run the hlf_setup.sh script to create the CAs and the network structure for Org1
+- Run the hlf_setup.sh script to create the CAs and the network structure for Org2
+- Copy the Org2 msp to Org1 server and Org1 msp to Org2 server (Org msp exchange)
 - Run the start_org1.sh to start the Org1
+- Run the start_org2.sh to start the Org2
+
+# Add Org3
+- update the hlf_vars file to your Org requirements
+- Run the hlf_setup.sh script to create the CAs and the network structure for Org3
+- Run add_org_req.sh to generate Org3 request
+- Please share this request file to Org1 to update in the network channel
+- Run add_org.sh in Org1 server (after placing the Org3 request file in channel-artifacts directory)
+- Please share the Chennal pb file to Org2 to endorse
+- Run add_org_endorse.sh in Org2 server (after placing the pb file in channel-artifacts directory)
+- Then run start_org3.sh to start the Org3 in Org3 server.
+
+
 
 
