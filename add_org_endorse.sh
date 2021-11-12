@@ -33,11 +33,11 @@ export CORE_PEER_ADDRESS=${HLF_CA_HOST}:7051
 export CORE_PEER_MSPCONFIGPATH=$HLF_NETWORK_DIR/organizations/peerOrganizations/${ORG_NAME}/users/Admin@${ORG_NAME}/msp
 export CORE_PEER_TLS_ENABLED=true
 export CORE_PEER_TLS_ROOTCERT_FILE=$HLF_NETWORK_DIR/organizations/peerOrganizations/${ORG_NAME}/peers/${HLF_ORG_PEER1_ID}/tls/tlscacerts/tls-cacert.pem
-export ORDERER_CA=$HLF_NETWORK_DIR/organizations/ordererOrganizations/Org1/msp/tlscacerts/tls-cacert.pem
-export ORDERER_ADDRESS=centos81:7050
+export ORDERER_CA=$HLF_NETWORK_DIR/organizations/ordererOrganizations/${HLF_ORDR_ORG_NAME}/msp/tlscacerts/tls-cacert.pem
+export ORDERER_ADDRESS=${HLF_ORDR_HOST}:7050
 
 
-peer channel update -f channel-artifacts/${NEW_ORG_NAME}_update_in_envelope.pb -c mytestchannel -o centos81:7050 --ordererTLSHostnameOverride $HLF_ORDR_ID --tls --cafile $ORDERER_CA
+peer channel update -f channel-artifacts/${NEW_ORG_NAME}_update_in_envelope.pb -c mytestchannel -o ${HLF_ORDR_HOST}:7050 --ordererTLSHostnameOverride $HLF_ORDR_ID --tls --cafile $ORDERER_CA
 
 
 

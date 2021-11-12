@@ -32,10 +32,10 @@ usermod -aG docker bcuser <br>
 
 # Install HLF (login as non-root user ‘bcuser’)
 
-curl -sSL https://bit.ly/2ysbOFE | bash -s -- 2.2.1 1.4.9
+curl -sSL https://bit.ly/2ysbOFE | bash -s -- 2.2.1 1.4.9 <br>
 
 # Pull couchdb docker images
-docker pull couchdb:3.1.1
+docker pull couchdb:3.1.1 <br>
 
 # Network setup (e.g. mytest-network)
 download the repo as ZIP file and extract to your PWD (you may remove org-samples)
@@ -43,7 +43,7 @@ download the repo as ZIP file and extract to your PWD (you may remove org-sample
 Note: you refer the org-samples for directory structure reference.
 
 # Form network with Org1 & Org2
-- update the hlf_vars file to your Org requirements
+- update the hlf_vars & templates/extra_hosts.txt files to your Org requirements
 - Run the hlf_setup.sh script to create the CAs and the network structure for Org1
 - Run the hlf_setup.sh script to create the CAs and the network structure for Org2
 - Copy/share the Org2 MSP to Org1 server 
@@ -51,7 +51,7 @@ Note: you refer the org-samples for directory structure reference.
 - Run the start_org2.sh to start the Org2
 
 # Add Org3
-- update the hlf_vars file to your Org requirements
+- update the hlf_vars & templates/extra_hosts.txt files to your Org requirements
 - Run the hlf_setup.sh script to create the CAs and the network structure for Org3
 - Run add_org_req.sh to generate Org3 request
 - Please share this request file to Org1 to update in the network channel

@@ -197,6 +197,7 @@ sleep 2
 cd $HLF_NETWORK_DIR
 export COMPOSE_PROJECT_NAME=net
 docker-compose -f docker/docker-compose-ca.yaml up -d
+sleep 30
 
 #################################
 # SETUP ORDERER 
@@ -317,7 +318,7 @@ EOF
 ## Channel Connection Profile (CCP)
 ##########################################
 
-sh ccp-generate.sh
+${HLF_HOME}/ccp-generate.sh ${HLF_HOME}/hlf_vars
 
 ##--------------------------------------------
 

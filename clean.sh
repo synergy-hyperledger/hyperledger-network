@@ -15,6 +15,7 @@ else
     . ${vars_file}
 fi
 
+export COMPOSE_PROJECT_NAME=net
 cd $HLF_NETWORK_DIR
 
 docker_files=" -f docker/docker-compose-ca.yaml -f docker/docker-compose-org.yaml"

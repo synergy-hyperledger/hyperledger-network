@@ -6,7 +6,7 @@ HLF_HOME=/app/hlf
 HLF_DOCKER_NETWORK=mytest
 
 
-HLF_NETWORK_DIR=/app/hlf/mytest-network
+HLF_NETWORK_DIR=${HLF_HOME}/mytest-network
 
 #########################################
 ## FABRIC CA - SSL Certs
@@ -56,7 +56,8 @@ HLF_ORDR_ADMIN_ID=ordr-admin-org1
 HLF_ORDR_ADMIN_SECRET=ordradminorg1pw
 HLF_ORDR_PORT=7050
 HLF_ORDR_MSPID=Orderer1MSP
-
+HLF_ORDR_HOST="centos81"
+HLF_ORDR_ORG_NAME=Org1
 
 #########################################
 ## PEERS & USERS
