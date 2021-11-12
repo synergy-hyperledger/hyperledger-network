@@ -5,29 +5,30 @@ Hyperledger network setup and configuration
 
 Note: Ensure to have a static IP address.
 
-yum update -y
-yum install -y epel-release.noarch
-yum install -y yum-utils
-yum install -y jq.x86_64
+yum update -y <br>
+yum install -y epel-release.noarch <br>
+yum install -y yum-utils <br>
+yum install -y jq.x86_64 <br>
+yum install -y tree.x86_64 <br>
 
-systemctl disable firewalld
-yum remove -y podman.x86_64
-yum remove -y buildah.x86_64
+systemctl disable firewalld <br>
+yum remove -y podman.x86_64 <br>
+yum remove -y buildah.x86_64 <br>
 
 # Install Docker
-yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
-yum install -y docker-ce docker-ce-cli containerd.io
-systemctl enable --now docker
-systemctl status docker
+yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo <br>
+yum install -y docker-ce docker-ce-cli containerd.io <br>
+systemctl enable --now docker <br>
+systemctl status docker <br>
 
 # Install Docker Compose 
-curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-chmod +x /usr/local/bin/docker-compose
-ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose <br>
+chmod +x /usr/local/bin/docker-compose <br>
+ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose <br>
 
 # Application User (non-root)
-useradd bcuser
-usermod -aG docker bcuser
+useradd bcuser <br>
+usermod -aG docker bcuser <br>
 
 # Install HLF (login as non-root user ‘bcuser’)
 
@@ -45,7 +46,7 @@ Note: you refer the org-samples for directory structure reference.
 - update the hlf_vars file to your Org requirements
 - Run the hlf_setup.sh script to create the CAs and the network structure for Org1
 - Run the hlf_setup.sh script to create the CAs and the network structure for Org2
-- Copy the Org2 MSP to Org1 server 
+- Copy/share the Org2 MSP to Org1 server 
 - Run the start_org1.sh to start the Org1
 - Run the start_org2.sh to start the Org2
 
